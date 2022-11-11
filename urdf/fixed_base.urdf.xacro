@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="vscmg">
+    <xacro:property name="M_PI" value="3.141592653589793" />
+    <xacro:property name="M_PI_2" value="${M_PI/2}" />
+    <xacro:property name="DEG_TO_RAD" value="${M_PI/180.0}" />
+    <xacro:property name="M_BETA" value="${M_PI/2-atan(sqrt(2))}" />
+
+    <material name="blue">
+        <color rgba="0 0 0.8 1" />
+    </material>
+
+    <material name="platform_color">
+        <color rgba="${96/255} ${96/255} ${96/255} 1.0" />
+    </material>
+
+    <material name="tripod_color">
+        <color rgba="1.0 1.0 1.0 1.0" />
+    </material>
+    <material name="cmg_frame_color">
+        <color rgba="1.0 1.0 1.0 1.0" />
+    </material>
+
+    <material name="gimbal_color">
+        <color rgba="0.3 0.8 0.05 1.0" />
+    </material>
+
+    <material name="rw_color">
+        <color rgba="0.23 0.23 0.23 1.0" />
+    </material>
+
+    <link name="world" />
+
+    <link name="tripod">
+        <inertial>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+            <mass value="0.0" />
+            <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0" />
+        </inertial>
+        <visual name="">
+            <origin xyz="0.0 0.0 0.05" rpy="0.0 0.0 0.0" />
+            <geometry>
+                <mesh filename="package://vscmg_description/meshes/tripod.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="tripod_color" />
+        </visual>
+        <collision>
+            <origin xyz="0.0 0.0 0.05" rpy="0.0 0.0 0.0" />
+            <geometry>
+                <mesh filename="package://vscmg_description/meshes/tripod.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </collision>
+    </link>
+
+    <joint name="tripod_world" type="fixed">
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <parent link="world"/>
+        <child link="tripod"/>
+        <axis xyz="0.0 0.0 0.0"/>
+        <limit lower="0.0" upper="0.0" effort="0.0" velocity="0.0"/>
+    </joint>
+
+
+</robot>

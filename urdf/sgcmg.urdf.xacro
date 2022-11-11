@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+<!-- Singal Gimbal variable speed control moment gyro generator macros -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="vscmg">
+
+    <!-- generate sgcmg macro-->
+    <xacro:macro name="sgcmg" params="id parent h r yaw">
+        <!-- SGCMG base frame -->
+        <link name="sgcmg_frame_${id}">
+            <inertial>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+                <mass value="0.0" />
+                <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0" />
+            </inertial>
+            <visual name="">
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+                <geometry>
+                    <mesh filename="package://vscmg_description/meshes/cmg_frame_z.stl" scale="0.001 0.001 0.001" />
+                </geometry>
+                <material name="cmg_frame_color" />
+            </visual>
+            <collision>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+                <geometry>
+                    <mesh filename="package://vscmg_description/meshes/cmg_frame_z.stl" scale="0.001 0.001 0.001" />
+                </geometry>
+            </collision>
+        </link>
+
+        <!-- SGCMG Gimbal  -->
+        <link name="gimbal_frame_${id}">
+            <inertial>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+                <mass value="0.0" />
+                <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0" />
+            </inertial>
+            <visual name="">
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+                <geometry>
+                    <mesh filename="package://vscmg_description/meshes/gimbal_frame_z.stl" scale="0.001 0.001 0.001" />
+                </geometry>
+                <material name="gimbal_color" />
+            </visual>
+            <collision>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+                <geometry>
+                    <mesh filename="package://vscmg_description/meshes/gimbal_frame_z.stl" scale="0.001 0.001 0.001" />
+                </geometry>
+            </collision>
+        </link>
+
+        <!-- SGCMG Reaction Wheel  -->
+        <link name="rw_frame_${id}">
+            <inertial>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+                <mass value="0.0" />
+                <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0" />
+            </inertial>
+            <visual name="">
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+                <geometry>
+                    <mesh filename="package://vscmg_description/meshes/rw_y.stl" scale="0.001 0.001 0.001" />
+                </geometry>
+                <material name="rw_color" />
+            </visual>
+            <collision>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+                <geometry>
+                    <mesh filename="package://vscmg_description/meshes/rw_y.stl" scale="0.001 0.001 0.001" />
+                </geometry>
+            </collision>
+        </link>
+
+        <!-- Fixed joint of SGCMG attached to parent -->
+        <joint name="j${id}" type="fixed">
+            <origin xyz="${r*cos(radians(yaw))} ${r*sin(radians(yaw))} ${h}" rpy="${M_BETA} 0.0 ${radians(yaw-90)}" />
+            <parent link="${parent}" />
+            <child link="sgcmg_frame_${id}" />
+            <axis xyz="0.0 0.0 0.0" />
+            <limit lower="0.0" upper="0.0" effort="0.0" velocity="0.0" />
+        </joint>
+
+        <!-- Joint at Gimbal Axis -->
+        <!-- <joint name="sgcmg_frame_${id}_to_gimbal_frame_${id}" type="continuous"> -->
+        <joint name="gimbal_${id}" type="continuous">
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+            <parent link="sgcmg_frame_${id}" />
+            <child link="gimbal_frame_${id}" />
+            <axis xyz="0.0 0.0 1.0" />
+            <limit lower="0.0" upper="0.0" effort="0.0" velocity="0.0" />
+        </joint>
+
+        <!-- Joint at Reaction wheel spin Axis -->
+        <!-- <joint name="rw_${id}_to_sgcmg_frame_${id}" type="continuous">  -->
+        <joint name="wheel_${id}" type="continuous">
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+            <parent link="gimbal_frame_${id}" />
+            <child link="rw_frame_${id}" />
+            <axis xyz="0.0 1.0 0.0" />
+            <limit lower="0.0" upper="0.0" effort="0.0" velocity="0.0" />
+        </joint>
+    </xacro:macro>
+
+    <!-- loop from from_itr = 1 to to_itr = N-->
+    <xacro:macro name="cmg_loop" params="from_itr to_itr parent r h">
+        <!-- call some macros or do other things -->
+        <xacro:sgcmg id="${from_itr}" parent="${parent}" r="${r}" h="${h}" yaw="${360*from_itr/to_itr}" />
+        <xacro:if value="${from_itr-to_itr}">
+            <xacro:cmg_loop from_itr="${from_itr+1}" to_itr="${to_itr}" parent="${parent}" r="${r}" h="${h}" />
+        </xacro:if>
+    </xacro:macro>
+
+
+    <xacro:macro name="vscmg_pyramid" params="count parent radius height">
+        <xacro:cmg_loop from_itr="1" to_itr="${count}" parent="${parent}" r="${radius}" h="${height}" />
+    </xacro:macro>
+
+</robot>
