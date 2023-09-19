@@ -1,6 +1,6 @@
 # VSCMG Description
 
-Variable Speed Control Moment Gyroscope ros package.
+Variable Speed Control Moment Gyroscope ros package. Complete thesis report available at [VSCMGThesisReport](https://github.com/siddharthdeore/VSCMGThesisReport).
 
 # Build
 Navigate to catkin workspace root directory and make.
